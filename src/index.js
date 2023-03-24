@@ -30,13 +30,11 @@ const showListOfCountries = data => {
 const showSingleCountry = data => {
   clearCountries();
   const languages = Object.values(data.languages).join(', ');
-
   countryInfoEl.innerHTML = `<img class="flag-single" src="${data.flags.svg}"/> 
   <p class="country-single">${data.name.official}</p> 
   <p><span class="bold"> Capital: </span> ${data.capital[0]}</p> 
   <p><span class="bold"> Population: </span> ${addSpaces(data.population)}</p> 
   <p><span class="bold"> Languages: </span> ${languages}</p>`;
-  console.log(data);
 };
 
 const showCountries = data => {
@@ -46,10 +44,15 @@ const showCountries = data => {
   if (data.length === 1) showSingleCountry(...data);
 };
 
-const readData = debounce(event => {
-  event.target.value.trim() !== ''
-    ? fetchCountries(event.target.value.trim()).then(showCountries)
-    : clearCountries();
+const delayReadData = debounce((event, data) => {
+  console.log(data);
+  event.target.value.trim() !== '' ? showCountries(data) : clearCountries();
 }, DEBOUNCE_DELAY);
+
+const readData = async event => {
+  const data = await fetchCountries(event.target.value.trim());
+  debounce(() => console.log(data), DEBOUNCE_DELAY);
+  delayReadData(event, data);
+};
 
 inputEl.addEventListener('input', readData);
